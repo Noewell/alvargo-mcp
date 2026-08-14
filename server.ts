@@ -27,7 +27,7 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT || 3001);
 
 // The main Alvargo platform — all authenticated tool calls are proxied here
 const MAIN_APP_URL = process.env.MAIN_APP_URL || 'https://alvargo.delivery';
@@ -210,7 +210,10 @@ async function proxyToolCall(
     'Content-Type': 'application/json',
     'User-Agent': 'alvargo-mcp/1.0.0',
   };
-  if (mcpKey) headers['x-alvargo-mcp-key'] = mcpKey;
+  if (mcpKey) {
+    headers['Authorization'] = `Bearer ${mcpKey}`;
+    headers['x-alvargo-mcp-key'] = mcpKey;
+  }
 
   // Map MCP tool names to main app internal tool names
   const toolMap: Record<string, string> = {
@@ -261,7 +264,13 @@ async function proxyToolCall(
   try {
     const response = await axios.post(
       `${MAIN_APP_URL}/api/mcp/execute`,
-      { tool: toolMap[toolName] || toolName, args: remappedArgs },
+      {
+        toolName: toolMap[toolName] || toolName,
+        arguments: remappedArgs,
+        // Kept during the rollout so legacy clients can be upgraded without downtime.
+        tool: toolMap[toolName] || toolName,
+        args: remappedArgs,
+      },
       { headers, timeout: 15000 }
     );
     return { success: true, result: response.data.result ?? response.data };
@@ -348,7 +357,7 @@ async function startServer() {
     if (requiresAuth(tool) && !mcpKey) {
       return res.status(401).json({
         error: 'Authentication required.',
-        message: `The '${tool}' tool requires an Alvargo MCP Key. Generate one at https://alvargo.delivery/integrations.`,
+        message: `The '${tool}' tool requires an Alvargo MCP Key. Generate one at https://alvargo.delivery/shipper/integrations.`,
         public_tools: Array.from(PUBLIC_TOOLS),
       });
     }
@@ -368,13 +377,13 @@ async function startServer() {
       if (result.status === 401) {
         return res.status(401).json({
           error: 'Invalid or expired MCP key.',
-          message: 'Generate a new key at https://alvargo.delivery/integrations',
+          message: 'Generate a new key at https://alvargo.delivery/shipper/integrations',
         });
       }
       if (result.status === 403) {
         return res.status(403).json({
           error: 'Permission denied.',
-          message: `Your MCP key does not have permission for '${tool}'. Update RBAC settings at https://alvargo.delivery/integrations.`,
+          message: `Your MCP key does not have permission for '${tool}'. Update RBAC settings at https://alvargo.delivery/shipper/integrations.`,
         });
       }
       return res.status(502).json({ error: result.error || 'Upstream error' });
@@ -433,7 +442,7 @@ async function startServer() {
               type: 'text',
               text: JSON.stringify({
                 error: 'Authentication required.',
-                message: `The '${name}' tool requires an Alvargo MCP Key. Generate one at https://alvargo.delivery/integrations.`,
+                message: `The '${name}' tool requires an Alvargo MCP Key. Generate one at https://alvargo.delivery/shipper/integrations.`,
                 public_tools: Array.from(PUBLIC_TOOLS),
               }),
             }],
