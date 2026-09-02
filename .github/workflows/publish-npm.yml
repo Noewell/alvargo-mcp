@@ -1,0 +1,160 @@
+name: Publish Alvargo MCP Package
+
+
+
+on:
+
+  workflow_dispatch:
+  
+    inputs:
+    
+      version:
+      
+        description: Exact package version declared in packages/alvargo-mcp-server/package.json
+        
+        required: true
+        
+        default: "1.0.0"
+        
+        type: string
+        
+
+
+permissions:
+
+  contents: read
+  
+  id-token: write
+  
+
+
+concurrency:
+
+  group: npm-publish-alvargo-mcp
+  
+  cancel-in-progress: false
+  
+
+
+jobs:
+
+  publish:
+  
+    name: Publish alvargo-mcp-server
+    
+    runs-on: ubuntu-latest
+    
+    defaults:
+    
+      run:
+      
+        working-directory: packages/alvargo-mcp-server
+        
+
+
+    steps:
+    
+      - name: Check out the tagged source
+      
+        uses: actions/checkout@v4
+        
+
+
+      - name: Set up Node.js
+      
+        uses: actions/setup-node@v4
+        
+        with:
+        
+          node-version: "22"
+          
+          registry-url: "https://registry.npmjs.org"
+          
+          cache: npm
+          
+          cache-dependency-path: packages/alvargo-mcp-server/package-lock.json
+          
+
+
+      - name: Verify requested version matches package metadata
+      
+        run: |
+        
+          test "$(node -p \"require('./package.json').version\")" = "${{ inputs.version }}"
+          
+
+
+      - name: Install locked dependencies
+      
+        run: npm ci
+        
+
+
+      - name: Build the package
+      
+        run: npm run build
+        
+
+
+      - name: Validate the publication tarball
+      
+        run: npm pack --dry-run
+        
+
+
+      - name: Publish public package with provenance
+      
+        run: npm publish --access public --provenance
+        
+        env:
+        
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+          
+
+
+      - name: Verify registry release
+      
+        run: npm view "alvargo-mcp-server@${{ inputs.version }}" version dist.integrity --json
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
