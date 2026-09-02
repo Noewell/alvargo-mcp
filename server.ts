@@ -147,6 +147,20 @@ function createWebMcpError(status: number, message: string): globalThis.Response
   });
 }
 
+function createMcpCorsHeaders(origin: string | null): globalThis.Headers {
+  const headers = new globalThis.Headers({
+    'access-control-allow-methods': 'POST, DELETE, OPTIONS',
+    'access-control-allow-headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id, x-alvargo-mcp-key',
+    'access-control-expose-headers': 'Mcp-Session-Id',
+    'access-control-max-age': '600',
+  });
+  if (origin) {
+    headers.set('access-control-allow-origin', origin);
+    headers.set('vary', 'Origin');
+  }
+  return headers;
+}
+
 /**
  * Standards-native MCP handler for Netlify Functions. It intentionally avoids
  * the Node IncomingMessage adapter because Netlify's serverless shim exposes
@@ -156,6 +170,10 @@ export async function handleMcpWebRequest(request: globalThis.Request): Promise<
   const origin = request.headers.get('origin');
   if (origin && !browserOrigins.has(origin)) {
     return createWebMcpError(403, 'Origin is not allowed by Alvargo MCP policy.');
+  }
+
+  if (request.method === 'OPTIONS') {
+    return new globalThis.Response(null, { status: 204, headers: createMcpCorsHeaders(origin) });
   }
 
   const mcpKey = (() => {
