@@ -175,23 +175,26 @@ Private shipper tools: use the local NPM client with ALVARGO_MCP_KEY`,
     <div className="min-h-screen bg-[#0D1117] text-white font-sans">
 
       {/* ── Top Nav ──────────────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-[#0D1117]/90 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Logo className="w-8 h-8" />
-          <span className="font-black text-lg tracking-tight text-white">ALVARGO</span>
-          <span className="text-slate-600 mx-2">|</span>
-          <span className="text-sm font-bold text-[#00D4FF]">AI Agents & MCP</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="https://alvargo.delivery/register" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">
-            Create Account
+      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-[#0D1117]/95 px-4 py-3 backdrop-blur-md sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <a href="/" className="flex min-w-0 items-center gap-3" aria-label="Alvargo MCP home">
+            <Logo compact className="h-9 w-8 shrink-0" />
+            <div className="min-w-0 leading-tight">
+              <div className="text-base font-black tracking-[0.12em] text-white sm:text-lg">ALVARGO</div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#00D4FF]">AI Agents & MCP</div>
+            </div>
           </a>
-          <a
-            href="https://alvargo.delivery/login"
-            className="px-4 py-2 bg-[#00D4FF] text-[#0D1117] text-sm font-black rounded-xl hover:bg-[#00c0e6] transition-all"
-          >
-            Sign In
-          </a>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+            <a href="https://alvargo.delivery/register" className="hidden text-sm font-bold text-slate-400 transition-colors hover:text-white sm:inline">
+              Create Account
+            </a>
+            <a
+              href="https://alvargo.delivery/login"
+              className="rounded-xl bg-[#00D4FF] px-3 py-2 text-xs font-black text-[#0D1117] transition-all hover:bg-[#00c0e6] sm:px-4 sm:text-sm"
+            >
+              Sign In
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -604,10 +607,10 @@ npx alvargo-mcp login
       <footer className="border-t border-slate-800 px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Logo className="w-6 h-6" />
-            <span className="text-sm font-black text-slate-400">ALVARGO</span>
+            <Logo compact className="h-7 w-6 shrink-0" />
+            <span className="text-sm font-black tracking-[0.12em] text-slate-300">ALVARGO</span>
             <span className="text-slate-700">·</span>
-            <span className="text-xs text-slate-600 font-medium">Logistics-as-a-Service</span>
+            <span className="text-xs font-medium text-slate-500">Logistics-as-a-Service</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-slate-600 font-medium">
             <a href="https://alvargo.delivery" className="hover:text-slate-400 transition-colors">Platform</a>
