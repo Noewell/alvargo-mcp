@@ -2,36 +2,40 @@
   "schema_version": "1.0",
   "name": "alvargo-mcp",
   "display_name": "Alvargo Freight OS",
-  "description": "The official Alvargo Logistics-as-a-Service MCP server. Quote, book, track, and manage freight shipments inside Claude, Cursor, ChatGPT, and any MCP-compatible AI agent.",
+  "description": "The official Alvargo Logistics-as-a-Service MCP gateway. Quote freight, access market intelligence, register a shipper, and—with a shipper-scoped MCP key—create, track, and manage Alvargo shipments.",
   "version": "1.0.0",
   "publisher": {
     "name": "Alvargo",
     "url": "https://alvargo.delivery",
-    "email": "support@alvargo.delivery"
+    "email": "support@alvargo.us"
   },
   "homepage": "https://alvargo.net/agents/mcp",
   "remote_url": "https://alvargo.net/api/mcp",
+  "transport": "streamable_http",
   "npm_package": "alvargo-mcp-server",
   "github": "https://github.com/Noewell/alvargo-mcp",
   "license": "MIT",
   "auth": {
+    "phase": "scoped_api_key",
     "type": "bearer",
-    "header": "x-alvargo-mcp-key",
+    "header": "Authorization: Bearer ALV_MCP_SEC_...",
+    "alternative_header": "x-alvargo-mcp-key",
     "key_prefix": "ALV_MCP_SEC_",
     "public_tools": ["quote_freight", "get_market_rates", "register_shipper"],
     "signup_url": "https://alvargo.delivery/register",
-    "key_management_url": "https://alvargo.delivery/integrations"
+    "key_management_url": "https://alvargo.delivery/shipper/integrations",
+    "oauth_status": "planned"
   },
   "tools": [
-    { "name": "quote_freight", "auth_required": false, "description": "Get instant freight quote for any lane" },
-    { "name": "create_shipment", "auth_required": true, "permission": "create_shipment", "description": "Book a live shipment on the Alvargo network" },
-    { "name": "get_shipment", "auth_required": true, "permission": "get_shipment_details", "description": "Track a shipment by ID" },
-    { "name": "update_status", "auth_required": true, "permission": "update_shipment_status", "description": "Update shipment status" },
-    { "name": "find_drivers", "auth_required": true, "permission": "get_shipment_details", "description": "Find available drivers near a location" },
-    { "name": "assign_driver", "auth_required": true, "permission": "assign_driver_to_shipment", "description": "Assign a driver to a shipment" },
-    { "name": "upload_document", "auth_required": true, "permission": "upload_document", "description": "Upload BOL, POD, or compliance documents" },
-    { "name": "get_market_rates", "auth_required": false, "description": "Get live freight market rate benchmarks" },
-    { "name": "analyze_freight_image", "auth_required": true, "permission": "create_shipment", "description": "AI photo-to-quote from cargo image" },
-    { "name": "register_shipper", "auth_required": false, "description": "Create a new Alvargo shipper account (public)" }
+    { "name": "quote_freight", "auth_required": false, "description": "Get an Alvargo freight quote for a lane." },
+    { "name": "create_shipment", "auth_required": true, "permission": "create_shipment", "description": "Create a live shipment on the Alvargo network." },
+    { "name": "get_shipment", "auth_required": true, "permission": "get_shipment_details", "description": "Track a shipper-scoped shipment by ID." },
+    { "name": "update_status", "auth_required": true, "permission": "update_shipment_status", "description": "Update a shipper-scoped shipment status." },
+    { "name": "find_drivers", "auth_required": true, "permission": "get_available_drivers", "description": "Find available Alvargo capacity." },
+    { "name": "assign_driver", "auth_required": true, "permission": "assign_driver_to_shipment", "description": "Assign a driver to a shipper-scoped shipment." },
+    { "name": "upload_document", "auth_required": true, "permission": "upload_document", "description": "Upload a shipper-scoped freight document." },
+    { "name": "get_market_rates", "auth_required": false, "description": "Get freight market-rate benchmarks." },
+    { "name": "analyze_freight_image", "auth_required": true, "permission": "create_shipment", "description": "Analyze a freight image for photo-to-quote assistance." },
+    { "name": "register_shipper", "auth_required": false, "description": "Register a prospective Alvargo shipper account." }
   ]
 }

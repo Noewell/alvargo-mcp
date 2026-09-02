@@ -128,17 +128,18 @@ export default function AgentsMcp() {
       ],
     },
     chatgpt: {
-      label: 'ChatGPT',
+      label: 'Remote MCP',
       config: `Remote MCP URL:
 https://alvargo.net/api/mcp
 
-Authentication Header:
-x-alvargo-mcp-key: YOUR_ALV_MCP_SEC_KEY`,
+Phase 1 availability:
+Public tools: quote_freight, get_market_rates, register_shipper
+Private shipper tools: use the local NPM client with ALVARGO_MCP_KEY`,
       steps: [
-        'Open ChatGPT → Settings → Connected Apps → Add MCP Server',
-        'Paste the remote URL: https://alvargo.net/api/mcp',
-        'Add your MCP key as the authentication header',
-        'Alvargo freight tools will appear in your ChatGPT session',
+        'Add https://alvargo.net/api/mcp to any Streamable HTTP-compatible client to access public Alvargo tools.',
+        'For shipper-private tools, install the local alvargo-mcp-server package using the configuration shown above.',
+        'Create and scope your MCP key in Alvargo → Shipper Integrations → AI Agents & MCP.',
+        'OAuth browser sign-in for remote private tools is planned for a future release.',
       ],
     },
   };
@@ -151,7 +152,7 @@ x-alvargo-mcp-key: YOUR_ALV_MCP_SEC_KEY`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tool: 'calculate_price',
+          tool: 'quote_freight',
           args: {
             origin: liveQuoteOrigin,
             destination: liveQuoteDest,
@@ -198,7 +199,7 @@ x-alvargo-mcp-key: YOUR_ALV_MCP_SEC_KEY`,
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-full text-[#00D4FF] text-xs font-black uppercase tracking-widest mb-8">
           <Zap size={12} className="fill-current" />
-          Alvargo MCP Server — Now Available on npm
+          Alvargo MCP Server — Secure Gateway
         </div>
 
         <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-none mb-6">
@@ -551,7 +552,7 @@ npx alvargo-mcp login
               { label: 'MCP Discovery Manifest', url: 'https://alvargo.net/.well-known/mcp.json', desc: 'Lists every tool, auth requirements, and endpoints' },
               { label: 'Live Health Endpoint', url: 'https://alvargo.net/api/status', desc: 'No-auth health check — verify the server is live' },
               { label: 'NPM Package', url: 'https://npmjs.com/package/alvargo-mcp-server', desc: 'Published source on npm' },
-              { label: 'GitHub (MIT)', url: 'https://github.com/Noewell/alvargo-mcp-server', desc: 'Open source under MIT license' },
+              { label: 'GitHub (MIT)', url: 'https://github.com/Noewell/alvargo-mcp', desc: 'Open source under MIT license' },
             ].map((link) => (
               <a
                 key={link.label}
@@ -610,9 +611,9 @@ npx alvargo-mcp login
           </div>
           <div className="flex items-center gap-6 text-xs text-slate-600 font-medium">
             <a href="https://alvargo.delivery" className="hover:text-slate-400 transition-colors">Platform</a>
-            <a href="https://github.com/Noewell/alvargo-mcp-server" className="hover:text-slate-400 transition-colors">GitHub</a>
+            <a href="https://github.com/Noewell/alvargo-mcp" className="hover:text-slate-400 transition-colors">GitHub</a>
             <a href="https://npmjs.com/package/alvargo-mcp-server" className="hover:text-slate-400 transition-colors">npm</a>
-            <a href="mailto:support@alvargo.delivery" className="hover:text-slate-400 transition-colors">support@alvargo.delivery</a>
+            <a href="mailto:support@alvargo.us" className="hover:text-slate-400 transition-colors">support@alvargo.us</a>
           </div>
         </div>
       </footer>

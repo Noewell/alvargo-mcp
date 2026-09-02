@@ -1,0 +1,33 @@
+{
+  "name": "alvargo-mcp-server",
+  "version": "1.0.0",
+  "description": "Official local MCP client for the Alvargo Logistics-as-a-Service operating system.",
+  "keywords": ["mcp", "model-context-protocol", "alvargo", "freight", "logistics", "shipping"],
+  "license": "MIT",
+  "author": "Alvargo <support@alvargo.us>",
+  "homepage": "https://alvargo.net/agents/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Noewell/alvargo-mcp.git",
+    "directory": "packages/alvargo-mcp-server"
+  },
+  "bugs": { "url": "https://github.com/Noewell/alvargo-mcp/issues" },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": { "alvargo-mcp": "./dist/index.js" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.2"
+  }
+}
