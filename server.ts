@@ -18,6 +18,7 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
   MCP_TOOLS,
@@ -111,7 +112,7 @@ function toolError(message: string) {
   return { content: [{ type: 'text' as const, text: JSON.stringify({ error: message }) }], isError: true };
 }
 
-function createProtocolServer(mcpKey: string | null) {
+export function createProtocolServer(mcpKey: string | null) {
   const server = new Server(
     { name: SERVER_NAME, version: SERVER_VERSION },
     {
@@ -137,6 +138,61 @@ function createProtocolServer(mcpKey: string | null) {
   });
 
   return server;
+}
+
+function createWebMcpError(status: number, message: string): globalThis.Response {
+  return new globalThis.Response(JSON.stringify({ jsonrpc: '2.0', error: { code: -32000, message }, id: null }), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+/**
+ * Standards-native MCP handler for Netlify Functions. It intentionally avoids
+ * the Node IncomingMessage adapter because Netlify's serverless shim exposes
+ * normal Express headers but does not preserve them for that adapter.
+ */
+export async function handleMcpWebRequest(request: globalThis.Request): Promise<globalThis.Response> {
+  const origin = request.headers.get('origin');
+  if (origin && !browserOrigins.has(origin)) {
+    return createWebMcpError(403, 'Origin is not allowed by Alvargo MCP policy.');
+  }
+
+  const mcpKey = (() => {
+    const explicitKey = request.headers.get('x-alvargo-mcp-key')?.trim();
+    if (explicitKey) return explicitKey;
+    const authorization = request.headers.get('authorization');
+    if (authorization && /^Bearer\s+/i.test(authorization)) {
+      return authorization.replace(/^Bearer\s+/i, '').trim() || null;
+    }
+    return null;
+  })();
+  const server = createProtocolServer(mcpKey);
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+
+  try {
+    await server.connect(transport);
+    const response = await transport.handleRequest(request);
+    const headers = new globalThis.Headers(response.headers);
+    headers.set('x-content-type-options', 'nosniff');
+    headers.set('referrer-policy', 'no-referrer');
+    headers.set('x-frame-options', 'SAMEORIGIN');
+    headers.set('access-control-expose-headers', 'Mcp-Session-Id');
+    if (origin) {
+      headers.set('access-control-allow-origin', origin);
+      headers.set('vary', 'Origin');
+    }
+    return new globalThis.Response(response.body, { status: response.status, headers });
+  } catch (error) {
+    console.error('MCP Streamable HTTP request failed:', error instanceof Error ? error.message : error);
+    return createWebMcpError(500, 'Internal MCP server error.');
+  } finally {
+    await transport.close().catch(() => undefined);
+    await server.close().catch(() => undefined);
+  }
 }
 
 async function handleMcpRequest(req: Request, res: Response) {
